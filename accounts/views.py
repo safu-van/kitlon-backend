@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import authenticate, get_user_model
 
 from payout.models import LabourWallet
@@ -50,7 +50,7 @@ User = get_user_model()
 
 
 class LabourView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get(self, request):
         """Retrieve all labours"""
