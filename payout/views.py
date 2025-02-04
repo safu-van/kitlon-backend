@@ -1,9 +1,13 @@
+import io
+import xlsxwriter
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
+from django.http import HttpResponse
 
-from .models import LabourWallet
+from .models import LabourWallet, WalletTransaction
 from .serializers import LabourWalletSerializer, WalletDeductionSerializer
 
 
@@ -32,3 +36,41 @@ class WalletView(APIView):
         return Response(
             {"message": "Amount deducted successfully"}, status=status.HTTP_200_OK
         )
+
+
+class WalletTransactionExcelView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+        worksheet = workbook.add_worksheet("Kitlon_transactions_history")
+
+        headers = ["Date", "Labour Name", "Amount (₹)"]
+        worksheet.write_row(0, 0, headers)
+
+        transactions = WalletTransaction.objects.all()
+
+        row = 1
+        for transaction in transactions:
+            labour_name = f"{transaction.labour.first_name} {transaction.labour.last_name}".strip()
+            formatted_date = transaction.created_at.strftime("%d/%m/%Y")
+
+            worksheet.write_row(
+                row, 0, [formatted_date, labour_name, transaction.amount]
+            )
+            row += 1
+
+        workbook.close()
+        output.seek(0)
+
+        response = HttpResponse(
+            output.getvalue(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = (
+            'attachment; filename="Kitlon_transactions_history.xlsx"'
+        )
+
+        return response

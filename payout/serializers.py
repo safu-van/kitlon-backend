@@ -20,8 +20,10 @@ class WalletDeductionSerializer(serializers.ModelSerializer):
         fields = ["amount"]
 
     def update(self, instance, validated_data):
-        amount = validated_data.get("amount", 0)
+        if "amount" not in validated_data:
+            raise serializers.ValidationError({"amount": "This field is required."})
 
+        amount = validated_data["amount"]
         instance.amount -= amount
         instance.save()
 
