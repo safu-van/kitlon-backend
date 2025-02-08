@@ -1,5 +1,7 @@
 from django.db import models
-from accounts.models import CustomUserAccount
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 # SKU Details
@@ -12,7 +14,7 @@ class Sku(models.Model):
 # SKU Submission Data
 class SkuSubmission(models.Model):
     created_at = models.DateField(auto_now_add=True)
-    labour = models.ForeignKey(CustomUserAccount, on_delete=models.CASCADE)
+    labour = models.ForeignKey(User, on_delete=models.CASCADE)
     sku_code = models.CharField(max_length=255)
     quantity = models.IntegerField()
     status = models.CharField(max_length=255, default="Pending")

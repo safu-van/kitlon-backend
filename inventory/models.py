@@ -11,6 +11,6 @@ class Inventory(models.Model):
 
 # Inventory Needed for SKU
 class InventoryNeeded(models.Model):
-    sku = models.ForeignKey(Sku, on_delete=models.CASCADE)
+    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, related_name="inventory_needed")
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     quantity = models.IntegerField()
