@@ -13,7 +13,11 @@ from .utils import on_approval
 
 
 class SkuView(APIView):
-    permission_classes = [IsAdminUser]
+    def get_permissions(self):
+        """Apply different permissions for different requests"""
+        if self.request.method == "GET":
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
 
     def get(self, request):
         """Retrieve all SKUs"""

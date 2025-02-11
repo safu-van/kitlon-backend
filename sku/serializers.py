@@ -18,9 +18,16 @@ class SkuSerailizer(serializers.ModelSerializer):
         fields = ["id", "code", "labour_charge", "stock", "inventory_needed"]
 
     def validate_code(self, value):
-        """Ensure sku code is unique"""
-        if Sku.objects.filter(code=value).exists():
+        """Ensure SKU code is unique except for the current instance during updates."""
+        queryset = Sku.objects.filter(code=value)
+
+        # Exclude the current instance during update
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+
+        if queryset.exists():
             raise serializers.ValidationError("Sku Code already exists")
+
         return value
 
     def create(self, validated_data):
@@ -64,6 +71,7 @@ class SkuSerailizer(serializers.ModelSerializer):
 
 class SkuSubmissionSerializer(serializers.ModelSerializer):
     labour = serializers.SerializerMethodField()
+    created_at = serializers.DateField(format="%d-%m-%Y", read_only=True)
 
     class Meta:
         model = SkuSubmission
@@ -78,7 +86,7 @@ class SkuSubmissionSerializer(serializers.ModelSerializer):
 
     def get_labour(self, obj):
         return f"{obj.labour.first_name} {obj.labour.last_name}".strip()
-    
+
     def create(self, validated_data):
         request = self.context.get("request")
         labour = request.user
@@ -99,17 +107,17 @@ class SkuSubmissionSerializer(serializers.ModelSerializer):
             required_qty = item.quantity * quantity  # mutliply by sku quantity
 
             if inventory.stock < required_qty:
-                raise serializers.ValidationError({
-                    "inventory": f"Insufficient stock of {inventory.name}."
-                })
-        
+                raise serializers.ValidationError(
+                    {"inventory": f"Insufficient stock of {inventory.name}."}
+                )
+
         # Reduce inventory stock
         for item in required_inventories:
             inventory = item.inventory
             inventory.stock -= item.quantity * quantity  # mutliply by sku quantity
             inventory.save()
-        
+
         # Create SKU submission
-        return SkuSubmission.objects.create(labour=labour, sku_code=sku_code, quantity=quantity)
-
-
+        return SkuSubmission.objects.create(
+            labour=labour, sku_code=sku_code, quantity=quantity
+        )

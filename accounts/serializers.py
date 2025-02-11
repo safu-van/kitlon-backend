@@ -14,7 +14,14 @@ class LoginSerializer(serializers.Serializer):
 class LabourSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "username", "phone_number"]
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "username",
+            "phone_number",
+            "is_active",
+        ]
 
 
 class LabourCreateSerializer(serializers.ModelSerializer):
@@ -45,7 +52,7 @@ class LabourCreateSerializer(serializers.ModelSerializer):
         )
 
         return user
-    
+
 
 class LabourUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,11 +60,15 @@ class LabourUpdateSerializer(serializers.ModelSerializer):
         fields = ["first_name", "last_name", "phone_number"]
 
     def validate_phone_number(self, value):
-        """Ensure phone number is unique"""
-        if User.objects.filter(phone_number=value).exists():
+        """Ensure phone number is unique except for the current instance"""
+        if (
+            User.objects.exclude(phone_number=self.instance.phone_number)
+            .filter(phone_number=value)
+            .exists()
+        ):
             raise serializers.ValidationError("Phone number already exists")
         return value
-    
+
     def update(self, instance, validated_data):
         first_name = validated_data.get("first_name", instance.first_name)
         last_name = validated_data.get("last_name", instance.last_name)
@@ -66,7 +77,7 @@ class LabourUpdateSerializer(serializers.ModelSerializer):
         # handle username change if first name changes
         if first_name != instance.first_name:
             instance.username = generate_username(first_name)
-        
+
         # handle password change if either first name or phone number changes
         if first_name != instance.first_name or phone_number != instance.phone_number:
             instance.set_password(generate_password(first_name, phone_number))
