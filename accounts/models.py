@@ -36,7 +36,7 @@ class CustomUserAccountManager(BaseUserManager):
 class CustomUserAccount(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    phone_number = models.IntegerField(unique=True)
+    phone_number = models.CharField(max_length=15, unique=True) 
     username = models.CharField(max_length=255, unique=True)
 
     is_active = models.BooleanField(default=True)
