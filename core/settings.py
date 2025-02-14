@@ -89,9 +89,18 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Production
 DATABASES = {
     "default": dj_database_url.parse(os.getenv('DATABASE_URL'))
 }
+
+# Development
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 
 # Password validation
@@ -150,4 +159,4 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }
 
-CORS_ALLOWED_ORIGINS = ["https://kitlon-frontend.vercel.app/", "http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["https://kitlon.vercel.app", "http://localhost:5173"]

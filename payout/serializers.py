@@ -28,6 +28,6 @@ class WalletDeductionSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Record the transaction
-        WalletTransaction.objects.create(labour=instance.labour, amount=amount)
+        WalletTransaction.objects.create(labour=instance.labour, amount_payed=amount, balance_amount=instance.amount)
 
         return instance

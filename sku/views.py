@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from .models import Sku, SkuSubmission
 from .serializers import SkuSerailizer, SkuSubmissionSerializer
-from .utils import on_approval
+from .utils import on_approval, on_decline
 
 
 class SkuView(APIView):
@@ -87,6 +87,8 @@ class SkuSubmissionView(APIView):
 
         if status == "Apporved":
             on_approval(sku_data.sku_code, sku_data.quantity, sku_data.labour)
+        else:
+            on_decline(sku_data.sku_code, sku_data.quantity)
 
         return Response({"message": "Status updated successfully"})
 
@@ -103,7 +105,7 @@ class SkuSubmissionExcelView(APIView):
         headers = ["Date", "Labour Name", "SKU Code", "Quantity", "Status"]
         worksheet.write_row(0, 0, headers)
 
-        sku_data = SkuSubmission.objects.exclude(status="Pending")
+        sku_data = SkuSubmission.objects.all()
 
         row = 1
         for data in sku_data:
