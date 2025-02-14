@@ -150,4 +150,4 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }
 
-CORS_ALLOWED_ORIGINS = ["https://domain.com", "http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["https://kitlon-frontend.vercel.app/", "http://localhost:5173"]
