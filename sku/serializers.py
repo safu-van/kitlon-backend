@@ -32,10 +32,11 @@ class SkuSerailizer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         code = validated_data["code"]
+        stock = validated_data["stock"]
         labour_charge = validated_data["labour_charge"]
         inventory_needed = validated_data["inventory_needed"]
 
-        sku = Sku.objects.create(code=code, labour_charge=labour_charge)
+        sku = Sku.objects.create(code=code, stock=stock, labour_charge=labour_charge)
 
         # Create InventoryNeeded records
         for inventory in inventory_needed:
@@ -48,6 +49,7 @@ class SkuSerailizer(serializers.ModelSerializer):
         return sku
 
     def update(self, instance, validated_data):
+        instance.stock = validated_data.get("stock", instance.stock)
         instance.labour_charge = validated_data.get(
             "labour_charge", instance.labour_charge
         )
