@@ -71,6 +71,11 @@ class SkuSerailizer(serializers.ModelSerializer):
         return instance
 
 
+class SkuSalesSerializer(serializers.Serializer):
+    sku_code = serializers.CharField()
+    quantity = serializers.IntegerField()
+
+
 class SkuSubmissionSerializer(serializers.ModelSerializer):
     labour = serializers.SerializerMethodField()
     created_at = serializers.DateField(format="%d-%m-%Y", read_only=True)

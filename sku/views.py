@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from .models import Sku, SkuSubmission
-from .serializers import SkuSerailizer, SkuSubmissionSerializer
+from .serializers import SkuSerailizer, SkuSubmissionSerializer, SkuSalesSerializer
 from .utils import on_approval, on_decline
 
 
@@ -47,6 +47,37 @@ class SkuView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=http_status.HTTP_200_OK)
+
+
+class SkuSalesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        """Reduce SKU stock on sale"""
+        serializer = SkuSalesSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        sku_code = serializer.validated_data["sku_code"]
+        quantity = serializer.validated_data["quantity"]
+
+        try:
+            sku = Sku.objects.get(code=sku_code)
+        except Sku.DoesNotExist:
+            return Response(
+                {"error": "sku not found"}, status=http_status.HTTP_404_NOT_FOUND
+            )
+
+        if sku.stock < quantity:
+            return Response(
+                {"error": "Insufficient stock"}, status=http_status.HTTP_400_BAD_REQUEST
+            )
+
+        sku.stock -= quantity
+        sku.save()
+
+        return Response(
+            {"message": "Updated Sucessfully"}, status=http_status.HTTP_200_OK
+        )
 
 
 class SkuSubmissionView(APIView):

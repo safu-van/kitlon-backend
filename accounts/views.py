@@ -27,8 +27,12 @@ class LoginView(APIView):
             refresh_token = RefreshToken.for_user(user)
             access_token = refresh_token.access_token
 
-            user_name = f"{user.first_name} {user.last_name}".strip()
-            role = "admin" if user.is_superuser else "labour"
+            if user.last_name != "sales":
+                user_name = f"{user.first_name} {user.last_name}".strip()
+                role = "admin" if user.is_superuser else "labour"
+            else:
+                user_name = user.first_name
+                role = "sales"
 
             return Response(
                 {
@@ -64,7 +68,8 @@ class LabourView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.save()
-        LabourWallet.objects.create(labour=user)
+        if user.last_name != "sales":
+            LabourWallet.objects.create(labour=user)
 
         return Response(
             {"username": user.username},
