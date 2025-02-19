@@ -16,4 +16,5 @@ class WalletTransaction(models.Model):
     labour = models.ForeignKey(User, on_delete=models.CASCADE)
     amount_payed = models.DecimalField(max_digits=20, decimal_places=2)
     balance_amount = models.DecimalField(max_digits=20, decimal_places=2)
+    message = models.TextField()
 

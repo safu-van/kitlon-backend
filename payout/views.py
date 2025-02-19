@@ -47,7 +47,7 @@ class WalletTransactionExcelView(APIView):
         workbook = xlsxwriter.Workbook(output, {"in_memory": True})
         worksheet = workbook.add_worksheet("Kitlon_transactions_history")
 
-        headers = ["Date", "Labour Name", "Amount Payed", "Balance Amount"]
+        headers = ["Date", "Labour Name", "Amount Payed", "Balance Amount", "Message"]
         worksheet.write_row(0, 0, headers)
 
         transactions = WalletTransaction.objects.all()
@@ -58,7 +58,15 @@ class WalletTransactionExcelView(APIView):
             formatted_date = transaction.created_at.strftime("%d/%m/%Y")
 
             worksheet.write_row(
-                row, 0, [formatted_date, labour_name, transaction.amount_payed, transaction.balance_amount]
+                row,
+                0,
+                [
+                    formatted_date,
+                    labour_name,
+                    transaction.amount_payed,
+                    transaction.balance_amount,
+                    transaction.message,
+                ],
             )
             row += 1
 
